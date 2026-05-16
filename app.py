@@ -338,7 +338,14 @@ if "history" not in st.session_state:
 if "selected_history" not in st.session_state:
     st.session_state.selected_history = None
 if "api_key" not in st.session_state:
-    st.session_state.api_key = os.getenv("DEEPSEEK_API_KEY", "")
+    api_key = ""
+    try:
+        # Prefer st.secrets (for Streamlit Cloud / secure deployment)
+        api_key = st.secrets.get("DEEPSEEK_API_KEY", "") or os.getenv("DEEPSEEK_API_KEY", "")
+    except Exception:
+        # Fallback if secrets not available
+        api_key = os.getenv("DEEPSEEK_API_KEY", "")
+    st.session_state.api_key = api_key
 if "current_mode" not in st.session_state:
     st.session_state.current_mode = "概念解释"
 if "current_chat" not in st.session_state:
