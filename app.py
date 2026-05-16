@@ -1,6 +1,5 @@
 import streamlit as st
 import requests
-import os
 import json
 import re
 import html as html_module
@@ -338,14 +337,10 @@ if "history" not in st.session_state:
 if "selected_history" not in st.session_state:
     st.session_state.selected_history = None
 if "api_key" not in st.session_state:
-   api_key = ""
-try:
-    # 仅从 st.secrets 读取，不再回退到环境变量
-    api_key = st.secrets.get("MY_DEEPSEEK_KEY", "")
-except Exception:
-    # secrets 不可用时，保持为空
-    api_key = ""
-    st.session_state.api_key = api_key
+    try:
+        st.session_state.api_key = st.secrets.get("MY_DEEPSEEK_KEY", "")
+    except Exception:
+        st.session_state.api_key = ""
 if "current_mode" not in st.session_state:
     st.session_state.current_mode = "概念解释"
 if "current_chat" not in st.session_state:
@@ -529,14 +524,14 @@ def display_history_item(item):
 
 
 def run_ai_and_save(mode, user_prompt, user_display, max_tokens=2500):
-    if not st.session_state.api_key:
+    if not st.session_state.get("api_key", ""):
         return False, "请先在侧边栏展开区输入 DeepSeek API Key"
     messages = [
         {"role": "system", "content": get_system_prompt(mode)},
         {"role": "user", "content": user_prompt},
     ]
     with st.spinner("AI 正在思考..."):
-        output = call_deepseek_api(messages, st.session_state.api_key, max_tokens)
+        output = call_deepseek_api(messages, st.session_state.get("api_key", ""), max_tokens)
     add_to_current_chat("user", user_display)
     add_to_current_chat("assistant", output)
     add_to_history(mode, user_display, output)
@@ -553,7 +548,7 @@ with st.sidebar:
     with st.expander("🔑 API Key 设置", expanded=False):
         api_key_input = st.text_input(
             "DeepSeek API Key",
-            value=st.session_state.api_key,
+            value=st.session_state.get("api_key", ""),
             type="password",
             placeholder="sk-xxxxxxxxxxxxxxxx",
             help="从 https://platform.deepseek.com/ 获取 API Key",
