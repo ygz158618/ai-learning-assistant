@@ -4,8 +4,19 @@ import json
 import re
 import html as html_module
 import streamlit.components.v1 as components
-from datetime import datetime
+import pytz
+from datetime import datetime, timedelta
 from pathlib import Path
+
+
+def beijing_time():
+    """Return current time in Beijing timezone (Asia/Shanghai)."""
+    try:
+        return datetime.now(pytz.timezone("Asia/Shanghai"))
+    except Exception:
+        # Fallback if pytz is unavailable
+        return datetime.utcnow() + timedelta(hours=8)
+
 
 st.set_page_config(
     page_title="AI 学习助手",
@@ -190,7 +201,7 @@ def save_history(history_list):
 
 
 def export_filename(prefix="chat_history"):
-    return f"{prefix}_{datetime.now().strftime('%Y%m%d_%H%M')}.md"
+    return f"{prefix}_{beijing_time().strftime('%Y%m%d_%H%M')}.md"
 
 
 def infer_lang_from_text(mode, text):
@@ -235,7 +246,7 @@ def format_export_field(text, mode, field_type="answer"):
 
 
 def generate_markdown_export(records):
-    export_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    export_time = beijing_time().strftime("%Y-%m-%d %H:%M:%S")
     lines = [
         "# AI 学习助手 - 对话记录",
         "",
@@ -277,7 +288,7 @@ def get_latest_qa_record():
         "mode": st.session_state.current_mode,
         "question": last_user["content"],
         "answer": last_assistant["content"],
-        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "time": beijing_time().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
 
@@ -472,11 +483,11 @@ def generate_roadmap_prompt(role, level):
 
 def add_to_history(mode, user_input, output):
     entry = {
-        "id": datetime.now().strftime("%Y%m%d%H%M%S%f"),
+        "id": beijing_time().strftime("%Y%m%d%H%M%S%f"),
         "mode": mode,
         "question": user_input,
         "answer": output,
-        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "time": beijing_time().strftime("%Y-%m-%d %H:%M:%S"),
     }
     st.session_state.history.insert(0, entry)
     save_history(st.session_state.history)
@@ -486,7 +497,7 @@ def add_to_current_chat(role, content):
     st.session_state.current_chat.append({
         "role": role,
         "content": content,
-        "timestamp": datetime.now().strftime("%H:%M"),
+        "timestamp": beijing_time().strftime("%H:%M"),
     })
 
 
