@@ -6,9 +6,6 @@ import html as html_module
 import streamlit.components.v1 as components
 from datetime import datetime
 from pathlib import Path
-from dotenv import load_dotenv
-
-load_dotenv()
 
 st.set_page_config(
     page_title="AI 学习助手",
@@ -337,10 +334,7 @@ if "history" not in st.session_state:
 if "selected_history" not in st.session_state:
     st.session_state.selected_history = None
 if "api_key" not in st.session_state:
-    try:
-        st.session_state.api_key = st.secrets.get("MY_DEEPSEEK_KEY", "")
-    except Exception:
-        st.session_state.api_key = ""
+    st.session_state.api_key = ""
 if "current_mode" not in st.session_state:
     st.session_state.current_mode = "概念解释"
 if "current_chat" not in st.session_state:
