@@ -338,13 +338,13 @@ if "history" not in st.session_state:
 if "selected_history" not in st.session_state:
     st.session_state.selected_history = None
 if "api_key" not in st.session_state:
+   api_key = ""
+try:
+    # 仅从 st.secrets 读取，不再回退到环境变量
+    api_key = st.secrets.get("MY_DEEPSEEK_KEY", "")
+except Exception:
+    # secrets 不可用时，保持为空
     api_key = ""
-    try:
-        # Prefer st.secrets (for Streamlit Cloud / secure deployment)
-        api_key = st.secrets.get("DEEPSEEK_API_KEY", "") or os.getenv("DEEPSEEK_API_KEY", "")
-    except Exception:
-        # Fallback if secrets not available
-        api_key = os.getenv("DEEPSEEK_API_KEY", "")
     st.session_state.api_key = api_key
 if "current_mode" not in st.session_state:
     st.session_state.current_mode = "概念解释"
